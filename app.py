@@ -88,8 +88,29 @@ def find_all_mentioned_columns(text):
     return [c for _, c in found]
 
 
+def correct_common_mishearings(text):
+    """Fix common speech-recognition mistakes for our key statistical terms."""
+    replacements = {
+        "recreation": "correlation",
+        "correlate": "correlation",
+        "core relation": "correlation",
+        "regretion": "regression",
+        "regresion": "regression",
+        "aggression": "regression",
+        "progression": "regression",
+        "study over": "study hours",
+        "study hour": "study hours",
+        "studying hours": "study hours",
+    }
+    fixed = text.lower()
+    for wrong, right in replacements.items():
+        fixed = fixed.replace(wrong, right)
+    return fixed
+
+
 def handle_voice_command(text):
     """Understand the transcribed sentence and run the right analysis."""
+    text = correct_common_mishearings(text)
     t = text.lower()
 
     # 1. Student lookup: look for an ID pattern like S00501
