@@ -662,9 +662,23 @@ elif mode == "Look up a specific student":
 # ---------------------------------------------------------------
 with c2:
     st.subheader("📊 Visual Analytics")
-    if len(numeric_cols) >= 2:
-        chart_cols = st.multiselect("Choose columns to plot:", numeric_cols, default=numeric_cols[:2])
-        if chart_cols:
-            st.line_chart(df[chart_cols])
+    if numeric_cols:
+        view = st.radio(
+            "View:",
+            ["Histogram (all students)", "First N students (line chart)"],
+            horizontal=True,
+            key="va_view",
+        )
+        if view == "Histogram (all students)":
+            default_idx = numeric_cols.index(SCORE_COL) if SCORE_COL in numeric_cols else 0
+            va_col = st.selectbox("Choose a variable:", numeric_cols, index=default_idx, key="va_col")
+            show_fig(draw_hist(va_col, 30))
+        else:
+            chart_cols = st.multiselect(
+                "Choose columns to plot:", numeric_cols, default=numeric_cols[:2], key="va_cols"
+            )
+            n_students = st.slider("How many students to show:", 20, 500, 100, key="va_n")
+            if chart_cols:
+                st.line_chart(df[chart_cols].head(n_students))
     else:
         st.dataframe(df.head())
